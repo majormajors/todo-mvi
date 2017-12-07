@@ -44,6 +44,11 @@ class TaskAdapter(
         private val body = itemView.findViewById<TextView>(R.id.body)
 
         fun bind(task: Task) {
+            // remove old listeners first
+            checkbox.setOnCheckedChangeListener(null)
+            itemView.setOnClickListener(null)
+
+            // data binding
             checkbox.isChecked = task.completed
             body.text = task.body
         }

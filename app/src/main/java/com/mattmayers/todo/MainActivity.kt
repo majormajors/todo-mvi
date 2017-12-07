@@ -7,19 +7,18 @@ import android.view.View
 import com.mattmayers.todo.application.TodoApplication
 import com.mattmayers.todo.db.TodoDatabase
 import com.mattmayers.todo.db.model.TaskListGroup
-import com.mattmayers.todo.db.model.TaskListGroupDao_Impl
+import com.mattmayers.todo.framework.SchedulerProvider
 import com.mattmayers.todo.tasklistgroup.TaskListGroupDetailActivity
 import io.reactivex.Single
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.addTo
-import io.reactivex.schedulers.Schedulers
 
 import javax.inject.Inject
 
 class MainActivity : AppCompatActivity() {
     @Inject lateinit var database: TodoDatabase
+    @Inject lateinit var schedulerProvider: SchedulerProvider
 
     private val disposables = CompositeDisposable()
 
@@ -29,28 +28,28 @@ class MainActivity : AppCompatActivity() {
         TodoApplication.getComponent(this).inject(this)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         bootstrapDatabase()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(schedulerProvider.io())
+                .observeOn(schedulerProvider.ui())
                 .subscribe(loadTaskListGroup)
                 .addTo(disposables)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         disposables.dispose()
     }
 
     // Hack to ensure we have a default group in the database
     private fun bootstrapDatabase(): Single<Long> {
-        val dao = TaskListGroupDao_Impl(database)
+        val dao = database.taskListGroupDao()
         return dao.countAll().flatMap { count ->
             if (count == 0) {
                 dao.create(TaskListGroup.default())
             }
-            Single.just(TaskListGroup.DEFAULT_ID)
+            dao.findFirstId()
         }
     }
 

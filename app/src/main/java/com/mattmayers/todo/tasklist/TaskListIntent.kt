@@ -6,7 +6,7 @@ import com.mattmayers.todo.framework.UserIntent
 interface TaskListIntent : UserIntent
 
 class RefreshDataIntent(val id: Long) : TaskListIntent
-class CompleteTaskIntent(val task: Task) : TaskListIntent
-class UncompleteTaskIntent(val task: Task) : TaskListIntent
+class UpdateTaskCompletedIntent(val task: Task, val completed: Boolean) : TaskListIntent
 class CreateTaskIntent(val taskListId: Long, val body: String) : TaskListIntent
+class UpdateTaskIntent(val task: Task) : TaskListIntent
 class DeleteTaskIntent(val task: Task) : TaskListIntent

@@ -1,5 +1,5 @@
 package com.mattmayers.todo.framework.crud
 
-class UpdateFailedError : RuntimeException()
-class CreateFailedError: RuntimeException()
-class DeleteFailedError : RuntimeException()
+class UpdateFailedError(message: String? = null) : RuntimeException(message)
+class CreateFailedError(message: String? = null) : RuntimeException(message)
+class DeleteFailedError(message: String? = null) : RuntimeException(message)

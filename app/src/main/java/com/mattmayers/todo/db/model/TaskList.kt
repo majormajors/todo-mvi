@@ -11,7 +11,7 @@ import android.arch.persistence.room.*
 )
 data class TaskList @Ignore constructor(
         @field:PrimaryKey(autoGenerate = true)
-        val id: Long = 0,
+        val id: Long = 0L,
         val name: String,
         @field:ColumnInfo(name = "task_list_group_id")
         val taskListGroupId: Long,

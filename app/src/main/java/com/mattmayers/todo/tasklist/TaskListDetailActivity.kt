@@ -6,12 +6,12 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.EditText
+import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.mattmayers.todo.R
 import com.mattmayers.todo.application.TodoApplication
 import com.mattmayers.todo.db.model.Task
 import com.mattmayers.todo.framework.SchedulerProvider
-import com.mattmayers.todo.tasklistgroup.CreateTaskListIntent
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.Consumer
@@ -26,13 +26,15 @@ class TaskListDetailActivity : AppCompatActivity() {
         const val ID = "TASK_LIST_ID"
     }
 
-    private val taskListId by lazy { intent.getLongExtra(ID, -1L) }
+    private val taskListId by lazy { intent.getLongExtra(ID, 0L) }
     private val disposables = CompositeDisposable()
 
     private val adapter by lazy { TaskAdapter() }
 
     private val refreshDataPublisher: Subject<RefreshDataIntent> = PublishSubject.create()
+    private val updateTaskCompletedStatePublisher: Subject<UpdateTaskCompletedIntent> = PublishSubject.create()
     private val createTaskIntentPublisher: Subject<CreateTaskIntent> = PublishSubject.create()
+    private val updateTaskIntentPublisher: Subject<UpdateTaskIntent> = PublishSubject.create()
     private val deleteTaskIntentPublisher: Subject<DeleteTaskIntent> = PublishSubject.create()
 
     @Inject lateinit var viewModel: TaskListViewModel
@@ -45,17 +47,33 @@ class TaskListDetailActivity : AppCompatActivity() {
         setContentView(R.layout.task_list_group_detail)
         setSupportActionBar(toolbar)
 
-        recyclerView.adapter = this.adapter
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.apply {
+            adapter = this@TaskListDetailActivity.adapter
+            layoutManager = LinearLayoutManager(this@TaskListDetailActivity, LinearLayoutManager.VERTICAL, false)
+        }
 
-        viewModel.states()
-                .observeOn(schedulerProvider.ui())
-                .subscribe(this::render)
-                .addTo(disposables)
-        viewModel.handleIntents(intents())
+        viewModel.apply {
+            states().observeOn(schedulerProvider.ui())
+                    .subscribe(this@TaskListDetailActivity::render)
+                    .addTo(disposables)
+
+            errors().observeOn(schedulerProvider.ui())
+                    .subscribe({
+                        Toast.makeText(this@TaskListDetailActivity, it.toString(), Toast.LENGTH_SHORT).show()
+                    }).addTo(disposables)
+
+            handleIntents(intents())
+        }
 
         fab.clicks()
+                .observeOn(schedulerProvider.ui())
                 .subscribe(fabClickHandler)
+                .addTo(disposables)
+
+//        adapter.itemClicks()
+        adapter.itemCheckChanges()
+                .observeOn(schedulerProvider.ui())
+                .subscribe(itemCheckChangeHandler)
                 .addTo(disposables)
     }
 
@@ -65,6 +83,11 @@ class TaskListDetailActivity : AppCompatActivity() {
     }
 
     private fun intents(): Observable<TaskListIntent> = firstLoadIntent()
+            .mergeWith(createTaskIntentPublisher)
+            .mergeWith(deleteTaskIntentPublisher)
+            .mergeWith(refreshDataPublisher)
+            .mergeWith(updateTaskCompletedStatePublisher)
+            .mergeWith(updateTaskIntentPublisher)
 
     private fun firstLoadIntent() : Observable<TaskListIntent> {
         return Observable.just(RefreshDataIntent(taskListId))
@@ -85,6 +108,11 @@ class TaskListDetailActivity : AppCompatActivity() {
                     dialog.dismiss()
                 })
         dialog.show()
+    }
+
+    private val itemCheckChangeHandler = Consumer<Pair<Task, Boolean>> {
+        val (task, isCompleted) = it
+        updateTaskCompletedStatePublisher.onNext(UpdateTaskCompletedIntent(task, isCompleted))
     }
 
     private fun render(state: TaskListViewState) {

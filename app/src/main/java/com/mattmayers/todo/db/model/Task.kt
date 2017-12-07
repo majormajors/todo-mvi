@@ -1,9 +1,6 @@
 package com.mattmayers.todo.db.model
 
-import android.arch.persistence.room.ColumnInfo
-import android.arch.persistence.room.Entity
-import android.arch.persistence.room.ForeignKey
-import android.arch.persistence.room.PrimaryKey
+import android.arch.persistence.room.*
 import java.util.*
 
 @Entity(tableName = Task.TABLE_NAME,
@@ -14,7 +11,7 @@ import java.util.*
                         onDelete = ForeignKey.CASCADE)
         ))
 data class Task(
-        @field:PrimaryKey val id: Long,
+        @field:PrimaryKey(autoGenerate = true) val id: Long = 0L,
         val body: String,
         val completed: Boolean,
         val notes: String?,
@@ -25,6 +22,16 @@ data class Task(
         @field:ColumnInfo(name = "task_list_id")
         val taskListId: Long?
 ) {
+    @Ignore constructor(body: String, taskListId: Long) : this(
+            body = body,
+            taskListId = taskListId,
+            completed = false,
+            notes = null,
+            dueDate = null,
+            lat = null,
+            lng = null
+    )
+
     companion object {
         const val TABLE_NAME = "tasks"
     }

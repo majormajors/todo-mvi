@@ -20,6 +20,7 @@ class TaskListViewModel @Inject constructor(
         private val schedulerProvider: SchedulerProvider
 ) : ViewModel<TaskListIntent, TaskListViewState> {
     private val taskListUpdatePublisher: Subject<TaskList> = PublishSubject.create()
+    private val errors: Subject<Throwable> = PublishSubject.create()
 
     private val intents: Subject<TaskListIntent> = PublishSubject.create()
     private val states: Observable<TaskListViewState> by lazy {
@@ -36,6 +37,8 @@ class TaskListViewModel @Inject constructor(
 
     override fun states(): Observable<TaskListViewState> = states.hide()
 
+    fun errors() = errors.hide()
+
     private fun performAction(intent: TaskListIntent): TaskListAction {
         return when (intent) {
             is RefreshDataIntent -> {
@@ -46,18 +49,17 @@ class TaskListViewModel @Inject constructor(
                 StartLoadingAction()
             }
             is CreateTaskIntent -> {
-                val task = Task(
-                        id = 0L,
-                        body = intent.body,
-                        completed = false,
-                        taskListId = intent.taskListId,
-                        notes = null,
-                        dueDate = null,
-                        lat = null,
-                        lng = null
-                )
+                val task = Task(intent.body, intent.taskListId)
                 createTask(task)
-                        .flatMap { loadData(intent.taskListId) }
+                        .flatMap { loadData(it.taskListId!!) }
+                        .subscribe(Consumer {
+                            taskListUpdatePublisher.onNext(it)
+                        })
+                NoOpAction()
+            }
+            is UpdateTaskCompletedIntent -> {
+                updateTask(intent.task.copy(completed = intent.completed))
+                        .flatMap { loadData(it.taskListId!!) }
                         .subscribe(Consumer {
                             taskListUpdatePublisher.onNext(it)
                         })
@@ -76,6 +78,12 @@ class TaskListViewModel @Inject constructor(
 
     private fun createTask(task: Task): Single<Task> {
         return taskRepository.createEntity(task)
+                .map { it.entity }
+                .subscribeOn(schedulerProvider.io())
+    }
+
+    private fun updateTask(task: Task): Single<Task> {
+        return taskRepository.updateEntity(task)
                 .map { it.entity }
                 .subscribeOn(schedulerProvider.io())
     }

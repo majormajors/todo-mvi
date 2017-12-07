@@ -9,6 +9,7 @@ import android.widget.TextView
 import com.mattmayers.todo.R
 import com.mattmayers.todo.db.model.Task
 import io.reactivex.Observable
+import io.reactivex.Observer
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 
@@ -24,13 +25,7 @@ class TaskAdapter(
     override fun getItemCount(): Int = tasks.count()
 
     override fun onBindViewHolder(holder: TaskViewHolder?, position: Int) {
-        holder?.bind(tasks[position])
-        holder?.checkbox?.setOnCheckedChangeListener { _, isChecked ->
-            itemCheckChanges.onNext(Pair(tasks[holder.adapterPosition], isChecked))
-        }
-        holder?.itemView?.setOnClickListener {
-            itemClicks.onNext(tasks[holder.adapterPosition])
-        }
+        holder?.bind(tasks[position], itemCheckChanges, itemClicks)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): TaskViewHolder {
@@ -39,18 +34,36 @@ class TaskAdapter(
         return TaskViewHolder(layout)
     }
 
+    override fun onViewRecycled(holder: TaskViewHolder?) {
+        super.onViewRecycled(holder)
+        holder?.unbind()
+    }
+
     class TaskViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val checkbox: CheckBox = itemView.findViewById<CheckBox>(R.id.checkbox)
         private val body = itemView.findViewById<TextView>(R.id.body)
 
-        fun bind(task: Task) {
-            // remove old listeners first
-            checkbox.setOnCheckedChangeListener(null)
-            itemView.setOnClickListener(null)
-
+        fun bind(
+                task: Task,
+                itemCheckChangesObserver: Observer<Pair<Task, Boolean>>,
+                itemClicksObserver: Observer<Task>
+        ) {
             // data binding
             checkbox.isChecked = task.completed
             body.text = task.body
+
+            // set new listeners
+            checkbox.setOnCheckedChangeListener { _, isChecked ->
+                itemCheckChangesObserver.onNext(Pair(task, isChecked))
+            }
+            itemView.setOnClickListener {
+                itemClicksObserver.onNext(task)
+            }
+        }
+
+        fun unbind() {
+            checkbox.setOnCheckedChangeListener(null)
+            itemView.setOnClickListener(null)
         }
     }
 }

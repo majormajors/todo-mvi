@@ -5,4 +5,11 @@
     <string name="cancel">Cancel</string>
     <string name="add">Add</string>
     <string name="add_new_task">Add new task</string>
+    <string name="delete">Delete</string>
+    <string name="edit">Edit</string>
+    <string name="task_body_hint">Enter task</string>
+    <string name="completed">Completed</string>
+    <string name="notes">Notes</string>
+    <string name="never">Never</string>
+    <string name="due_date">Due date</string>
 </resources>

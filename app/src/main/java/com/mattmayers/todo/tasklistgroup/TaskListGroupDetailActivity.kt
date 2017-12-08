@@ -8,6 +8,7 @@ import android.view.View
 import android.widget.EditText
 import com.jakewharton.rxbinding2.view.clicks
 import com.mattmayers.todo.R
+import com.mattmayers.todo.application.Extra
 import com.mattmayers.todo.application.Router
 import com.mattmayers.todo.application.TodoApplication
 import com.mattmayers.todo.db.model.TaskListGroup
@@ -22,11 +23,7 @@ import kotlinx.android.synthetic.main.task_list_group_detail.*
 import javax.inject.Inject
 
 class TaskListGroupDetailActivity : AppCompatActivity() {
-    companion object {
-        const val ID = "TASK_LIST_GROUP_ID"
-    }
-
-    private val taskListGroupId by lazy { intent.getLongExtra(ID, TaskListGroup.DEFAULT_ID) }
+    private val taskListGroupId by lazy { intent.getLongExtra(Extra.ID, TaskListGroup.DEFAULT_ID) }
     private val disposables = CompositeDisposable()
 
     private val refreshDataPublisher: Subject<RefreshDataIntent> = PublishSubject.create()

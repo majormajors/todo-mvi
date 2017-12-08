@@ -26,6 +26,9 @@
 
         <activity android:name=".tasklist.TaskListDetailActivity"
             android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity android:name=".taskedit.TaskDetailActivity"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

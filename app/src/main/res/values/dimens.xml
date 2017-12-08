@@ -1,4 +1,8 @@
 <resources>
     <dimen name="view_margin">8dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="tall_toolbar_height">200dp</dimen>
+    <dimen name="default_elevation">8dp</dimen>
+    <dimen name="header_text_size_big">24sp</dimen>
+    <dimen name="task_detail_label_width">150dp</dimen>
 </resources>

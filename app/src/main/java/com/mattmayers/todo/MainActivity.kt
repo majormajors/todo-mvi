@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.View
+import com.mattmayers.todo.application.Extra
 import com.mattmayers.todo.application.TodoApplication
 import com.mattmayers.todo.db.TodoDatabase
 import com.mattmayers.todo.db.model.TaskListGroup
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
     private val loadTaskListGroup = Consumer<Long> {
         val intent = Intent(this@MainActivity, TaskListGroupDetailActivity::class.java)
-        intent.putExtra(TaskListGroupDetailActivity.ID, it)
+        intent.putExtra(Extra.ID, it)
         startActivity(intent)
         finish()
     }

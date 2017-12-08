@@ -6,9 +6,10 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.widget.EditText
-import android.widget.Toast
 import com.jakewharton.rxbinding2.view.clicks
 import com.mattmayers.todo.R
+import com.mattmayers.todo.application.Extra
+import com.mattmayers.todo.application.Router
 import com.mattmayers.todo.application.TodoApplication
 import com.mattmayers.todo.db.model.Task
 import com.mattmayers.todo.framework.SchedulerProvider
@@ -22,11 +23,7 @@ import kotlinx.android.synthetic.main.task_list_group_detail.*
 import javax.inject.Inject
 
 class TaskListDetailActivity : AppCompatActivity() {
-    companion object {
-        const val ID = "TASK_LIST_ID"
-    }
-
-    private val taskListId by lazy { intent.getLongExtra(ID, 0L) }
+    private val taskListId by lazy { intent.getLongExtra(Extra.ID, 0L) }
     private val disposables = CompositeDisposable()
 
     private val adapter by lazy { TaskAdapter() }
@@ -39,6 +36,7 @@ class TaskListDetailActivity : AppCompatActivity() {
 
     @Inject lateinit var viewModel: TaskListViewModel
     @Inject lateinit var schedulerProvider: SchedulerProvider
+    @Inject lateinit var router: Router
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,11 +55,6 @@ class TaskListDetailActivity : AppCompatActivity() {
                     .subscribe(this@TaskListDetailActivity::render)
                     .addTo(disposables)
 
-            errors().observeOn(schedulerProvider.ui())
-                    .subscribe({
-                        Toast.makeText(this@TaskListDetailActivity, it.toString(), Toast.LENGTH_SHORT).show()
-                    }).addTo(disposables)
-
             handleIntents(intents())
         }
 
@@ -70,11 +63,20 @@ class TaskListDetailActivity : AppCompatActivity() {
                 .subscribe(fabClickHandler)
                 .addTo(disposables)
 
-//        adapter.itemClicks()
+        adapter.itemClicks()
+                .observeOn(schedulerProvider.ui())
+                .subscribe(router::goToEditTask)
+                .addTo(disposables)
+
         adapter.itemCheckChanges()
                 .observeOn(schedulerProvider.ui())
                 .subscribe(itemCheckChangeHandler)
                 .addTo(disposables)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        refreshDataPublisher.onNext(RefreshDataIntent(taskListId))
     }
 
     override fun onDestroy() {

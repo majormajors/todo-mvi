@@ -14,6 +14,7 @@ import com.mattmayers.todo.db.repository.TaskListRepository
 import com.mattmayers.todo.db.repository.TaskRepository
 import com.mattmayers.todo.framework.Repository
 import com.mattmayers.todo.framework.SchedulerProvider
+import com.mattmayers.todo.taskedit.TaskDetailActivity
 import com.mattmayers.todo.tasklist.TaskListDetailActivity
 import com.mattmayers.todo.tasklistgroup.TaskListGroupDetailActivity
 import dagger.Provides
@@ -21,6 +22,7 @@ import io.reactivex.Scheduler
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Singleton
+import kotlin.reflect.KClass
 
 class TodoApplication : Application() {
     companion object {
@@ -37,6 +39,7 @@ class TodoApplication : Application() {
         fun inject(activity: MainActivity)
         fun inject(activity: TaskListGroupDetailActivity)
         fun inject(activity: TaskListDetailActivity)
+        fun inject(activity: TaskDetailActivity)
     }
 
     @dagger.Module
@@ -65,12 +68,20 @@ class TodoApplication : Application() {
         @Singleton
         fun provideRouter(): Router = object : Router {
             override fun goToTaskList(taskList: TaskList) {
-                val intent = Intent(applicationContext, TaskListDetailActivity::class.java)
-                intent.putExtra(TaskListDetailActivity.ID, taskList.id)
-                applicationContext.startActivity(intent)
+                startActivityWithIdExtra(TaskListDetailActivity::class, taskList.id)
             }
 
             override fun goToTask(task: Task) {
+            }
+
+            override fun goToEditTask(task: Task) {
+                startActivityWithIdExtra(TaskDetailActivity::class, task.id)
+            }
+
+            private fun startActivityWithIdExtra(clazz: KClass<*>, id: Long) {
+                val intent = Intent(applicationContext, clazz.java)
+                intent.putExtra(Extra.ID, id)
+                applicationContext.startActivity(intent)
             }
         }
 

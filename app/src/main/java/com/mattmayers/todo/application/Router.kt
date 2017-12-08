@@ -9,4 +9,5 @@ import com.mattmayers.todo.db.model.TaskList
 interface Router {
     fun goToTaskList(taskList: TaskList)
     fun goToTask(task: Task)
+    fun goToEditTask(task: Task)
 }

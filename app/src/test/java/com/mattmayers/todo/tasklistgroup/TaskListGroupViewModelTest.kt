@@ -42,8 +42,8 @@ class TaskListGroupViewModelTest : BaseViewModelTest<TaskListGroupViewModel, Tas
         val state = viewModel.states().test()
         viewModel.handleIntents(Observable.just(RefreshDataIntent(2L)))
         state.awaitCount(3)
-        state.assertError {
-            it is RuntimeException
-        }
+        state.assertError(KotlinNullPointerException::class.java)
+                .assertValueAt(0) { !it.isLoading }
+                .assertValueAt(1) { it.isLoading }
     }
 }

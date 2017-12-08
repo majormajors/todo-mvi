@@ -8,7 +8,6 @@ import com.mattmayers.todo.framework.ViewModel
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Consumer
 import io.reactivex.rxkotlin.zipWith
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject

@@ -9,7 +9,7 @@ import io.reactivex.Observable
 import org.junit.Before
 import org.junit.Test
 
-class TaskListGroupViewModelTest : BaseViewModelTest<TaskListGroupViewModel, TaskListGroupIntent, TaskListGroupViewState>() {
+class TaskListGroupViewModelTest : BaseViewModelTest<TaskListGroupViewModel>() {
     private lateinit var taskListGroupRepository: Repository<TaskListGroup>
     private lateinit var taskListRepository: Repository<TaskList>
 

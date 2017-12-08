@@ -48,9 +48,12 @@ class MainActivity : AppCompatActivity() {
         val dao = database.taskListGroupDao()
         return dao.countAll().flatMap { count ->
             if (count == 0) {
-                dao.create(TaskListGroup.default())
+                Single.fromCallable {
+                    dao.create(TaskListGroup.default())
+                }
+            } else {
+                dao.findFirstId()
             }
-            dao.findFirstId()
         }
     }
 

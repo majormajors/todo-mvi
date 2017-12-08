@@ -11,12 +11,12 @@ import android.arch.persistence.room.*
 )
 data class TaskList @Ignore constructor(
         @field:PrimaryKey(autoGenerate = true)
-        val id: Long = 0L,
+        override val id: Long = 0L,
         val name: String,
         @field:ColumnInfo(name = "task_list_group_id")
         val taskListGroupId: Long,
         @field:Ignore val tasks: List<Task> = listOf()
-) {
+): DbModel {
     constructor(id: Long = 0, name: String, taskListGroupId: Long): this(id, name, taskListGroupId, listOf())
 
     companion object {

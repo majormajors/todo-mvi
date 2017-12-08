@@ -37,8 +37,11 @@ class TaskListGroupViewModel @Inject constructor(
         return when (intent) {
             is RefreshDataIntent -> {
                 loadData(intent.id)
-                        .subscribe(Consumer {
+                        .observeOn(schedulerProvider.ui())
+                        .subscribe({
                             taskListGroupUpdatePublisher.onNext(it)
+                        },{
+                            taskListGroupUpdatePublisher.onError(it)
                         })
                 StartLoadingAction()
             }
@@ -49,8 +52,11 @@ class TaskListGroupViewModel @Inject constructor(
                 )
                 createTaskList(entity)
                         .flatMap { loadData(entity.taskListGroupId) }
-                        .subscribe(Consumer {
+                        .observeOn(schedulerProvider.ui())
+                        .subscribe({
                             taskListGroupUpdatePublisher.onNext(it)
+                        },{
+                            taskListGroupUpdatePublisher.onError(it)
                         })
                 NoOpAction()
             }

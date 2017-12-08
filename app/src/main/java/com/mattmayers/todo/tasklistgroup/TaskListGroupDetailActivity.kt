@@ -43,14 +43,17 @@ class TaskListGroupDetailActivity : AppCompatActivity() {
         setContentView(R.layout.task_list_group_detail)
         setSupportActionBar(toolbar)
 
-        recyclerView.adapter = this.adapter
-        recyclerView.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
+        recyclerView.apply {
+            adapter = this@TaskListGroupDetailActivity.adapter
+            layoutManager = LinearLayoutManager(this@TaskListGroupDetailActivity, LinearLayoutManager.VERTICAL, false)
+        }
 
-        viewModel.states()
-                .observeOn(schedulerProvider.ui())
-                .subscribe(this::render)
-                .addTo(disposables)
-        viewModel.handleIntents(intents())
+        viewModel.apply {
+            states().observeOn(schedulerProvider.ui())
+                    .subscribe(this@TaskListGroupDetailActivity::render)
+                    .addTo(disposables)
+            handleIntents(intents())
+        }
 
         fab.clicks()
                 .subscribe(fabClickHandler)

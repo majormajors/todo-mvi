@@ -11,7 +11,7 @@ import java.util.*
                         onDelete = ForeignKey.CASCADE)
         ))
 data class Task(
-        @field:PrimaryKey(autoGenerate = true) val id: Long = 0L,
+        @field:PrimaryKey(autoGenerate = true) override val id: Long = 0L,
         val body: String,
         val completed: Boolean,
         val notes: String?,
@@ -21,7 +21,7 @@ data class Task(
         val lng: Double?,
         @field:ColumnInfo(name = "task_list_id")
         val taskListId: Long?
-) {
+): DbModel {
     @Ignore constructor(body: String, taskListId: Long) : this(
             body = body,
             taskListId = taskListId,

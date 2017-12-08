@@ -6,10 +6,10 @@ import android.arch.persistence.room.PrimaryKey
 
 @Entity(tableName = TaskListGroup.TABLE_NAME)
 data class TaskListGroup @Ignore constructor(
-        @field:PrimaryKey(autoGenerate = true) val id: Long = 0L,
+        @field:PrimaryKey(autoGenerate = true) override val id: Long = 0L,
         val name: String,
         @field:Ignore val taskLists: List<TaskList> = listOf()
-) {
+): DbModel {
     constructor(id: Long, name: String): this(id, name, listOf())
 
     companion object {

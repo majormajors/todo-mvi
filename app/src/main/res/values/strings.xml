@@ -17,4 +17,5 @@
     <string name="google_play_services_error">There was an error with Google Play Services</string>
     <string name="hide_completed">Hide completed</string>
     <string name="show_completed">Show completed</string>
+    <string name="save">Save</string>
 </resources>

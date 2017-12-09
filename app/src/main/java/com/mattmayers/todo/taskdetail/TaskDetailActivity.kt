@@ -111,7 +111,7 @@ class TaskDetailActivity : AppCompatActivity() {
                 .subscribe {
                     try {
                         val intent = PlaceAutocomplete
-                                .IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                .IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN)
                                 .build(this)
                         startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
                     } catch (e: GooglePlayServicesRepairableException) {

@@ -9,7 +9,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.view.visible
 import com.mattmayers.todo.R
 import com.mattmayers.todo.application.Extra
 import com.mattmayers.todo.application.Router
@@ -23,8 +22,6 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import kotlinx.android.synthetic.main.task_list_group_detail.*
-import java.text.SimpleDateFormat
-import java.util.*
 import javax.inject.Inject
 
 class TaskListDetailActivity : AppCompatActivity() {

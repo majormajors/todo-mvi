@@ -1,12 +1,8 @@
 package com.mattmayers.todo.taskdetail
 
-import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.location.Address
-import android.location.Geocoder
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
@@ -20,9 +16,7 @@ import com.google.android.gms.common.GooglePlayServicesRepairableException
 import com.google.android.gms.location.places.Place
 import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.jakewharton.rxbinding2.view.clicks
-import com.jakewharton.rxbinding2.widget.checkedChanges
 import com.jakewharton.rxbinding2.widget.editorActionEvents
-import com.jakewharton.rxbinding2.widget.textChangeEvents
 import com.mattmayers.todo.R
 import com.mattmayers.todo.application.Extra
 import com.mattmayers.todo.application.Router
@@ -33,13 +27,11 @@ import com.mattmayers.todo.kext.focusAndShowSoftKeyboard
 import com.mattmayers.todo.kext.hideSoftKeyboard
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
 import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.task_detail.*
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskDetailActivity : AppCompatActivity() {

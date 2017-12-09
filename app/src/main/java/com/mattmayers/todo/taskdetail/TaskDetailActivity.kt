@@ -81,8 +81,9 @@ class TaskDetailActivity : AppCompatActivity() {
                     val date = task?.dueDate ?: Date()
                     DatePickerDialog(this@TaskDetailActivity,
                             DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-                                dueDate.setText(SimpleDateFormat.getDateInstance().format(task?.dueDate))
-                                updateDueDate(Date(year - 1900, month, dayOfMonth))
+                                val newDate = Date(year - 1900, month, dayOfMonth)
+                                dueDate.setText(SimpleDateFormat.getDateInstance().format(newDate))
+                                updateDueDate(newDate)
                             },
                             date.year + 1900, date.month, date.date)
                             .show()

@@ -1,4 +1,4 @@
-package com.mattmayers.todo.tasklistgroup
+package com.mattmayers.todo
 
 import com.mattmayers.todo.framework.SchedulerProvider
 

@@ -1,5 +1,6 @@
 package com.mattmayers.todo.tasklistgroup
 
+import com.mattmayers.todo.BaseViewModelTest
 import com.mattmayers.todo.db.model.TaskList
 import com.mattmayers.todo.db.model.TaskListGroup
 import com.mattmayers.todo.db.repository.TestTaskListGroupRepository

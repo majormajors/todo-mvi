@@ -170,7 +170,7 @@ class TaskDetailActivity : AppCompatActivity() {
 
     private fun updateTaskLocation(place: Place) {
         taskIntentPublisher.onNext(
-                UpdateLocationIntent(place)
+                UpdateLocationIntent(place.address.toString(), place.latLng.latitude, place.latLng.longitude)
         )
     }
 

@@ -4,7 +4,9 @@ import com.mattmayers.todo.db.model.DbModel
 import com.mattmayers.todo.framework.Repository
 import com.mattmayers.todo.framework.crud.DataResult
 import io.reactivex.Single
+import org.junit.Ignore
 
+@Ignore
 open class BaseTestRepository<T : DbModel>(private var items: MutableList<T>) : Repository<T> {
     override fun getCount(): Single<Int> {
         return Single.just(items.count())

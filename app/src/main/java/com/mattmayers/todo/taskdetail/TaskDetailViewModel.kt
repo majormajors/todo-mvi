@@ -37,7 +37,7 @@ class TaskDetailViewModel @Inject constructor(
                 .scan(TaskDetailViewState.default, reducer)
     }
 
-    private var task: Task? = null
+    var task: Task? = null
 
     override fun handleIntents(intents: Observable<TaskDetailIntent>) {
         intents.subscribe(this.intents)
@@ -95,9 +95,9 @@ class TaskDetailViewModel @Inject constructor(
             is UpdateDueDateIntent -> task?.copy(dueDate = intent.dueDate)
             is UpdateLocationIntent -> {
                 task?.copy(
-                        location = intent.place.address.toString(),
-                        lat = intent.place.latLng.latitude,
-                        lng = intent.place.latLng.longitude
+                        location = intent.location,
+                        lat = intent.lat,
+                        lng = intent.lng
                 )
             }
             is UpdateNotesIntent -> task?.copy(notes = intent.notes)

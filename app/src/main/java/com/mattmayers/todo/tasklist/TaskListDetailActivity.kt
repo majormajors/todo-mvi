@@ -36,7 +36,6 @@ class TaskListDetailActivity : AppCompatActivity() {
     private val refreshDataPublisher: Subject<RefreshDataIntent> = PublishSubject.create()
     private val updateTaskCompletedStatePublisher: Subject<UpdateTaskCompletedIntent> = PublishSubject.create()
     private val createTaskIntentPublisher: Subject<CreateTaskIntent> = PublishSubject.create()
-    private val updateTaskIntentPublisher: Subject<UpdateTaskIntent> = PublishSubject.create()
     private val deleteTaskIntentPublisher: Subject<DeleteTaskIntent> = PublishSubject.create()
 
     @Inject lateinit var viewModel: TaskListViewModel
@@ -94,7 +93,6 @@ class TaskListDetailActivity : AppCompatActivity() {
             .mergeWith(deleteTaskIntentPublisher)
             .mergeWith(refreshDataPublisher)
             .mergeWith(updateTaskCompletedStatePublisher)
-            .mergeWith(updateTaskIntentPublisher)
 
     private fun firstLoadIntent() : Observable<TaskListIntent> {
         return Observable.just(RefreshDataIntent(taskListId))

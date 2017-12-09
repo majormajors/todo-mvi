@@ -20,7 +20,6 @@ class TaskListViewModel @Inject constructor(
         private val schedulerProvider: SchedulerProvider
 ) : ViewModel<TaskListIntent, TaskListViewState> {
     private val taskListUpdatePublisher: Subject<TaskList> = PublishSubject.create()
-    private val errors: Subject<Throwable> = PublishSubject.create()
 
     private val intents: Subject<TaskListIntent> = PublishSubject.create()
     private val states: Observable<TaskListViewState> by lazy {
@@ -36,8 +35,6 @@ class TaskListViewModel @Inject constructor(
     }
 
     override fun states(): Observable<TaskListViewState> = states.hide()
-
-    fun errors() = errors.hide()
 
     private fun performAction(intent: TaskListIntent): TaskListAction {
         return when (intent) {

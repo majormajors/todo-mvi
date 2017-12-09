@@ -4,9 +4,12 @@ import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.EditText
 import com.jakewharton.rxbinding2.view.clicks
+import com.jakewharton.rxbinding2.view.visible
 import com.mattmayers.todo.R
 import com.mattmayers.todo.application.Extra
 import com.mattmayers.todo.application.Router
@@ -20,6 +23,8 @@ import io.reactivex.rxkotlin.addTo
 import io.reactivex.subjects.PublishSubject
 import io.reactivex.subjects.Subject
 import kotlinx.android.synthetic.main.task_list_group_detail.*
+import java.text.SimpleDateFormat
+import java.util.*
 import javax.inject.Inject
 
 class TaskListDetailActivity : AppCompatActivity() {
@@ -127,7 +132,43 @@ class TaskListDetailActivity : AppCompatActivity() {
         }
 
         title = state.title
+
         adapter.tasks = state.tasks
         adapter.notifyDataSetChanged()
+    }
+
+    private lateinit var hideItem: MenuItem
+    private lateinit var showItem: MenuItem
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.task_list_menu, menu)
+
+        hideItem = menu.findItem(R.id.hide_completed)
+        showItem = menu.findItem(R.id.show_completed)
+        updateMenuItemVisibility()
+
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        return when (item?.itemId) {
+            hideItem.itemId -> {
+                adapter.showCompleted = false
+                adapter.notifyDataSetChanged()
+                updateMenuItemVisibility()
+                true
+            }
+            showItem.itemId -> {
+                adapter.showCompleted = true
+                adapter.notifyDataSetChanged()
+                updateMenuItemVisibility()
+                true
+            }
+            else -> return super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun updateMenuItemVisibility() {
+        hideItem.isVisible = adapter.showCompleted
+        showItem.isVisible = !adapter.showCompleted
     }
 }

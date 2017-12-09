@@ -1,9 +1,12 @@
 package com.mattmayers.todo.taskdetail
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +14,11 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Toast
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException
+import com.google.android.gms.common.GooglePlayServicesRepairableException
+import com.google.android.gms.location.places.Place
+import com.google.android.gms.location.places.ui.PlaceAutocomplete
 import com.jakewharton.rxbinding2.view.clicks
 import com.jakewharton.rxbinding2.widget.checkedChanges
 import com.jakewharton.rxbinding2.widget.editorActionEvents
@@ -35,6 +43,10 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class TaskDetailActivity : AppCompatActivity() {
+    companion object {
+        const val PLACE_AUTOCOMPLETE_REQUEST_CODE = 1;
+    }
+
     @Inject lateinit var viewModel: TaskDetailViewModel
     @Inject lateinit var scheduleProvider: SchedulerProvider
     @Inject lateinit var router: Router
@@ -48,6 +60,11 @@ class TaskDetailActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.task_detail)
         setSupportActionBar(toolbar)
+
+        toolbar.setNavigationOnClickListener {
+            saveTask(true)
+        }
+
         title = ""
         collapsingToolbarLayout.title = ""
 
@@ -90,18 +107,34 @@ class TaskDetailActivity : AppCompatActivity() {
                 }
                 .addTo(disposables)
 
-        location.editorActionEvents()
+        location.clicks()
                 .subscribe {
-                    if (Geocoder.isPresent() && it.actionId() == EditorInfo.IME_ACTION_DONE) {
-                        val geocoder = Geocoder(this@TaskDetailActivity)
-                        val results = geocoder.getFromLocationName(it.view().text.toString(), 1)
-                        if (results.isNotEmpty()) {
-                            updateTaskLocation(results.first())
-                            location.setText(AddressRenderer(results.first()).renderSingleLine())
-                        }
+                    try {
+                        val intent = PlaceAutocomplete
+                                .IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
+                                .build(this)
+                        startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
+                    } catch (e: GooglePlayServicesRepairableException) {
+                        playServicesError()
+                    } catch (e : GooglePlayServicesNotAvailableException) {
+                        playServicesError()
                     }
                 }
                 .addTo(disposables)
+    }
+
+    private fun playServicesError() {
+        Toast.makeText(this, R.string.google_play_services_error, Toast.LENGTH_LONG).show();
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                val place = PlaceAutocomplete.getPlace(this, data)
+                location.setText(place.address)
+                updateTaskLocation(place)
+            }
+        }
     }
 
     private fun makeBodyEditable() {
@@ -135,9 +168,9 @@ class TaskDetailActivity : AppCompatActivity() {
         )
     }
 
-    private fun updateTaskLocation(address: Address) {
+    private fun updateTaskLocation(place: Place) {
         taskIntentPublisher.onNext(
-                UpdateLocationIntent(address)
+                UpdateLocationIntent(place)
         )
     }
 
@@ -220,10 +253,12 @@ class TaskDetailActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.delete) {
-            deleteTask()
-            return true
+        return when (item.itemId) {
+            R.id.delete -> {
+                deleteTask()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
-        return super.onOptionsItemSelected(item)
     }
 }

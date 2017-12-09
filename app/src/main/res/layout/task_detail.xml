@@ -67,13 +67,14 @@
                         android:layout_height="wrap_content"
                         android:text="@string/location"
                         android:layout_gravity="start|center_vertical"/>
-                    <AutoCompleteTextView
+                    <EditText
                         android:id="@+id/location"
                         android:hint="@string/nowhere"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPostalAddress"
                         android:imeOptions="actionDone"
+                        android:focusable="false"
                         android:layout_gravity="start|center_vertical"/>
                 </LinearLayout>
 
@@ -160,6 +161,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
+                app:navigationIcon="@drawable/ic_close_black_24dp"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay"/>
 

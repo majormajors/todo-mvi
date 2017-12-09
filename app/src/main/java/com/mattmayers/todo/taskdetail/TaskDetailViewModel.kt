@@ -94,11 +94,10 @@ class TaskDetailViewModel @Inject constructor(
             is UpdateTaskCompletedIntent -> task?.copy(completed = intent.completed)
             is UpdateDueDateIntent -> task?.copy(dueDate = intent.dueDate)
             is UpdateLocationIntent -> {
-                val address = intent.address
                 task?.copy(
-                        location = AddressRenderer(address).renderSingleLine(),
-                        lat = address.latitude,
-                        lng = address.longitude
+                        location = intent.place.address.toString(),
+                        lat = intent.place.latLng.latitude,
+                        lng = intent.place.latLng.longitude
                 )
             }
             is UpdateNotesIntent -> task?.copy(notes = intent.notes)

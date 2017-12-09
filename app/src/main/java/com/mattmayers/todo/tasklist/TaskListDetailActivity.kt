@@ -48,6 +48,8 @@ class TaskListDetailActivity : AppCompatActivity() {
 
         setContentView(R.layout.task_list_group_detail)
         setSupportActionBar(toolbar)
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp)
+        toolbar.setNavigationOnClickListener { onBackPressed() }
 
         recyclerView.apply {
             adapter = this@TaskListDetailActivity.adapter

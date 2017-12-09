@@ -246,10 +246,6 @@ class TaskDetailActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
-            R.id.save -> {
-                saveTask(true)
-                true
-            }
             R.id.delete -> {
                 deleteTask()
                 true

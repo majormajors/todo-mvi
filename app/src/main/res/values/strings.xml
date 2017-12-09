@@ -12,4 +12,6 @@
     <string name="notes">Notes</string>
     <string name="never">Never</string>
     <string name="due_date">Due date</string>
+    <string name="location">Location</string>
+    <string name="nowhere">Nowhere</string>
 </resources>

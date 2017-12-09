@@ -1,4 +1,4 @@
-package com.mattmayers.todo.taskedit
+package com.mattmayers.todo.taskdetail
 
 import com.mattmayers.todo.db.model.Task
 import com.mattmayers.todo.framework.Repository
@@ -16,15 +16,23 @@ class TaskDetailViewModel @Inject constructor(
         private val taskRepository: Repository<Task>,
         private val schedulerProvider: SchedulerProvider
 ) : ViewModel<TaskDetailIntent, TaskDetailViewState> {
-    private val taskUpdatePublisher: Subject<Task> = PublishSubject.create()
+    private val dataLoadedPublisher: Subject<Task> = PublishSubject.create()
+    private val taskDeletePublisher: Subject<Task> = PublishSubject.create()
+    private val taskSavePublisher: Subject<Pair<Task, Boolean>> = PublishSubject.create()
 
     private val intents: Subject<TaskDetailIntent> = PublishSubject.create()
     private val states: Observable<TaskDetailViewState> by lazy {
         Observable.merge(
-                intents.map { performAction(it) },
-                taskUpdatePublisher
+                intents.map { performAction(it) }
+                        .filter { it !is NoOpAction },
+                dataLoadedPublisher
                         .doOnNext { this@TaskDetailViewModel.task = it }
-                        .map { DataLoadedAction(it) }
+                        .map { DataLoadedAction(it) },
+                taskSavePublisher
+                        .doOnNext { this@TaskDetailViewModel.task = it.first }
+                        .map { TaskSaveAction(it.first, it.second) },
+                taskDeletePublisher
+                        .map { TaskDeleteAction() }
         )
                 .scan(TaskDetailViewState.default, reducer)
     }
@@ -42,14 +50,31 @@ class TaskDetailViewModel @Inject constructor(
             is RefreshDataIntent -> {
                 loadData(intent.taskId)
                         .subscribe(Consumer {
-                            taskUpdatePublisher.onNext(it)
+                            dataLoadedPublisher.onNext(it)
                         })
                 StartLoadingAction()
             }
             is TaskEditIntent -> {
                 updateTask(intent)
+                        .doOnSuccess { this@TaskDetailViewModel.task = task }
+                        .subscribe()
+                NoOpAction()
+            }
+            is SaveTaskIntent -> {
+                taskRepository.updateEntity(task ?: throw IllegalStateException())
+                        .map { it.entity }
+                        .subscribeOn(schedulerProvider.io())
                         .subscribe(Consumer {
-                            taskUpdatePublisher.onNext(it)
+                            taskSavePublisher.onNext(Pair(it, intent.finishActivityAfterSave))
+                        })
+                NoOpAction()
+            }
+            is DeleteTaskIntent -> {
+                taskRepository.deleteEntity(task ?: throw IllegalStateException())
+                        .subscribeOn(schedulerProvider.io())
+                        .map { it.entity }
+                        .subscribe(Consumer {
+                            taskDeletePublisher.onNext(it)
                         })
                 NoOpAction()
             }
@@ -64,15 +89,22 @@ class TaskDetailViewModel @Inject constructor(
     }
 
     private fun updateTask(intent: TaskEditIntent): Single<Task> {
-        val task = when (intent) {
+        this.task = when (intent) {
             is UpdateTaskBodyIntent -> task?.copy(body = intent.body)
             is UpdateTaskCompletedIntent -> task?.copy(completed = intent.completed)
             is UpdateDueDateIntent -> task?.copy(dueDate = intent.dueDate)
+            is UpdateLocationIntent -> {
+                val address = intent.address
+                task?.copy(
+                        location = AddressRenderer(address).renderSingleLine(),
+                        lat = address.latitude,
+                        lng = address.longitude
+                )
+            }
+            is UpdateNotesIntent -> task?.copy(notes = intent.notes)
             else -> throw IllegalArgumentException()
         }
-        return taskRepository.updateEntity(task ?: throw IllegalStateException())
-                .map { it.entity }
-                .subscribeOn(schedulerProvider.io())
+        return Single.just(this.task)
     }
 
     private val reducer = BiFunction<TaskDetailViewState, TaskDetailAction, TaskDetailViewState>
@@ -80,6 +112,8 @@ class TaskDetailViewModel @Inject constructor(
         when (action) {
             is StartLoadingAction -> previousState.copy(isLoading = true)
             is DataLoadedAction -> previousState.copy(isLoading = false, task = action.task)
+            is TaskSaveAction -> previousState.copy(shouldClose = action.shouldClose, isLoading = false, task = action.task)
+            is TaskDeleteAction -> previousState.copy(shouldClose = true)
             else -> previousState
         }
     }

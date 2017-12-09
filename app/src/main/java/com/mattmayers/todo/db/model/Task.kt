@@ -17,6 +17,7 @@ data class Task(
         val notes: String?,
         @field:ColumnInfo(name = "due_date")
         val dueDate: Date?,
+        val location: String?,
         val lat: Double?,
         val lng: Double?,
         @field:ColumnInfo(name = "task_list_id")
@@ -28,6 +29,7 @@ data class Task(
             completed = false,
             notes = null,
             dueDate = null,
+            location = null,
             lat = null,
             lng = null
     )

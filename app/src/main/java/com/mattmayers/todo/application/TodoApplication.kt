@@ -14,7 +14,7 @@ import com.mattmayers.todo.db.repository.TaskListRepository
 import com.mattmayers.todo.db.repository.TaskRepository
 import com.mattmayers.todo.framework.Repository
 import com.mattmayers.todo.framework.SchedulerProvider
-import com.mattmayers.todo.taskedit.TaskDetailActivity
+import com.mattmayers.todo.taskdetail.TaskDetailActivity
 import com.mattmayers.todo.tasklist.TaskListDetailActivity
 import com.mattmayers.todo.tasklistgroup.TaskListGroupDetailActivity
 import dagger.Provides
@@ -33,7 +33,7 @@ class TodoApplication : Application() {
         DaggerTodoApplication_Component.builder().module(Module(this)).build()
     }
 
-    @dagger.Component(modules = arrayOf(Module::class))
+    @dagger.Component(modules = [(Module::class)])
     @Singleton
     interface Component {
         fun inject(activity: MainActivity)

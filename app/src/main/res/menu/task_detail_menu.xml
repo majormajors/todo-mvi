@@ -6,6 +6,6 @@
         android:id="@+id/delete"
         android:icon="@drawable/ic_delete_black_24dp"
         app:iconTint="@android:color/white"
-        app:showAsAction="never"
+        app:showAsAction="ifRoom"
         android:title="@string/delete" />
 </menu>
